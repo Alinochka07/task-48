@@ -1,41 +1,39 @@
 from flask import Flask, render_template, redirect, request
 from openpyxl import Workbook, load_workbook
-import xlsxwriter
-
 
 
 app = Flask(__name__)
 
 @app.route('/')
 def homepage():
-    my_excel = Workbook()
-    my_sheet = my_excel.active
-    my_excel.save('goods.xlsx')
-    page = my_excel.active
-    page['A1'] = 'Goods'
-    my_excel.save('goods.xlsx')
-    return render_template('index.html')
+    try:
+        excel = load_workbook('goods.xlsx')
+    except:
+        excel = Workbook()
+    
+    page = excel[excel.sheetnames[0]]
+    # goods = [cell.value for row in page for cell in row]
+    goods = [row[0].value for row in page]
+    excel.save('goods.xlsx')
+    return render_template('index.html', goods=goods)
 
 
 @app.route('/add/', methods=['POST'])
 def add_goods():
     good = request.form['good']
-    # excel = load_workbook('goods.xlsx')
-    excel = xlsxwriter.Workbook('goods.xlsx')
-    sheet = excel.add_worksheet()
-    row = 0
-    column = 0
-    # page = excel.active
-    content = [good]
+    try:
+        excel = load_workbook('goods.xlsx')
+    except:
+        excel = Workbook()
 
-    for item in content:
-        sheet.write(row+1, column, good)
-        excel.close()
-        row += 1
-        excel.close()
-    
- 
+    page = excel[excel.sheetnames[0]]
+    end = len(page['A']) + 1
+    page[f'A{end}'] = good
+    excel.save('goods.xlsx')
+     
     return """
-        <h1>Товары добавлены</h1>
-        <a href='/'>Вернуться на главную страницу</a>
-    """    
+            <h1>Товары добавлены</h1>
+            <a href='/'>Вернуться на главную страницу</a>
+            """ 
+ 
+       

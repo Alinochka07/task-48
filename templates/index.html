@@ -13,9 +13,11 @@
     <button>Добавить</button>
 </form>
 <div>
+    <ol>
     {% for good in goods %}
-    {{ good }}
+    <li>{{ good }}</li>
     {% endfor %} 
+</ol>
 </div>
 </body>
 </html>
